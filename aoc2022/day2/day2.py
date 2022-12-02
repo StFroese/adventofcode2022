@@ -50,5 +50,17 @@ def main():
     total = sum(outcome + points_by_shape)
     print(total)
 
+    # part 2 alternative
+    choose_map = {
+            'X': {'A': 'C', 'B': 'A', 'C': 'B'},
+            'Y': {'A': 'A', 'B': 'B', 'C': 'C'},
+            'Z': {'A': 'B', 'B': 'C', 'C': 'A'}
+            }
+    points_by_shape = list(map(lambda x: opponent_map[choose_map[x[1]][x[0]]], input))
+    outcome = list(map(lambda x: outcome_map[x[1]], input))
+
+    total = sum(outcome + points_by_shape)
+    print(total)
+
 if __name__ == '__main__':
     main()
