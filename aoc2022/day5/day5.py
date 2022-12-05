@@ -1,11 +1,17 @@
 def read_input():
     with open('input.txt', 'r') as f:
+        # divide into two blocks [stack, instructions]
         blocks = [block for block in f.read().split('\n\n')]
-        stacks = [[crate if crate.isupper() else None for crate in stack] for stack in blocks[0].replace(' ','0').split('\n')]
+        # nested list of crates
+        stacks = [[crate if crate.isupper() else None for crate in stack] for stack in blocks[0].split('\n')]
+        # transpose list
         stacks_transposed = list(map(list, zip(*stacks[:-1][::-1])))
+        # remove all list which do not contain a crate
         stacks_transposed_non_empty = [stack for stack in stacks_transposed if stack[0] != None]
+        # remove all None crates which were uses as a placeholder in order to transpose
         stacks = [[crate for crate in stack if crate is not None] for stack in stacks_transposed_non_empty]
 
+        # easy
         instructions = [[int(word) for word in instruction.split(' ') if word.isdigit()] for instruction in blocks[1].split('\n')[:-1]]
 
     return stacks, instructions
