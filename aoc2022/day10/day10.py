@@ -16,6 +16,18 @@ def execute(register, instruction):
         register['x'] += instruction[1]
         return [first_cycle, register['x']]
 
+def display(crt):
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    crt = np.array(crt[:-1])
+    image = np.zeros_like(crt, dtype=bool)
+    image[crt == '#'] = True
+    image[crt == '.'] = False
+    image = image.reshape((6,40))
+    plt.imshow(image)
+    plt.show()
+
 def main():
     input = read_input()
 
@@ -33,6 +45,9 @@ def main():
         for i in range(len(crt)//40):
             f.writelines(crt[i*40:(i+1)*40])
             f.write('\n')
+
+    display(crt)
+
 
 if __name__ == '__main__':
     main()
