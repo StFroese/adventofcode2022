@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 def read_input():
     g = Graph()
     with open('input.txt', 'r') as f:
@@ -12,6 +14,7 @@ def read_input():
                 if unicode == ord('S') - ord('a'):
                     g.start = (row_idx, col_idx)
                     unicode = 0
+                g.add_unicode((row_idx,col_idx), unicode)
                 # calc connections left right upper lower
                 for con in check_nearest(grid, row_idx, col_idx, unicode):
                     g.add_edge((row_idx, col_idx), con)
@@ -31,6 +34,7 @@ def test_input():
                 if unicode == ord('S') - ord('a'):
                     g.start = (row_idx, col_idx)
                     unicode = 0
+                g.add_unicode((row_idx,col_idx), unicode)
                 # calc connections left right upper lower
                 for con in check_nearest(grid, row_idx, col_idx, unicode):
                     g.add_edge((row_idx, col_idx), con)
@@ -59,6 +63,7 @@ class Graph:
         self.edges = {}
         self.start = None
         self.end = None
+        self.unicode = {}
 
     def add_node(self, node):
         self.nodes.append(node)
@@ -69,6 +74,12 @@ class Graph:
         else:
             self.edges[from_node].append(to_node)
 
+    def add_unicode(self, node, unicode):
+        self.unicode[node] = unicode
+
+    def starting_points_part_two(self):
+        return [node for node in self.nodes if self.unicode[node] == 0]
+
 class Dijkstra:
     def __init__(self, graph):
         self.graph = graph
@@ -77,7 +88,7 @@ class Dijkstra:
         self.parent = {node: None for node in graph.nodes}
 
     def __call__(self):
-        nodes = self.graph.nodes
+        nodes = self.graph.nodes.copy()
 
         while len(nodes) != 0:
             node_sd = self._smallest_distance_node(nodes)
@@ -113,9 +124,23 @@ class Dijkstra:
 def main():
     graph = read_input()
 
+    # part 1
     dijkstra = Dijkstra(graph)
     dijkstra()
     print(len(dijkstra.shortest_path())-2)
+
+    # part 2
+    starting_points = graph.starting_points_part_two()
+    distances = []
+    for start in tqdm(starting_points):
+        graph.start = start
+        dijkstra = Dijkstra(graph)
+        dijkstra()
+        distance = len(dijkstra.shortest_path())-2
+        if distance != 0:
+            distances.append(distance)
+    print(min(distances))
+
 
 
 if __name__ == '__main__':
