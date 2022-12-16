@@ -25,11 +25,15 @@ def fill_grid(grid, sensor, distance):
     sensor_x = sensor[0]
     sensor_y = sensor[1]
     for r in tqdm(range(distance+1)):
-        grid[(sensor_x+r,sensor_y+(distance-r))] = '#'
-        grid[(sensor_x-r,sensor_y-(distance-r))] = '#'
-        grid[(sensor_x+r,sensor_y-(distance-r))] = '#'
-        grid[(sensor_x-r,sensor_y+(distance-r))] = '#'
-    grid[sensor] = 'S'
+        if sensor_y+(distance-r) in grid.keys():
+            grid[sensor_y+(distance-r)][(sensor_x-r,sensor_x+r)] = '#'
+        else:
+            grid[sensor_y+(distance-r)] = {(sensor_x-r, sensor_x+r): '#'}
+        if sensor_y-(distance-r) in grid.keys():
+            grid[sensor_y-(distance-r)][(sensor_x-r,sensor_x+r)] = '#'
+        else:
+            grid[sensor_y-(distance-r)] = {(sensor_x-r, sensor_x+r): '#'}
+    #grid[sensor] = 'S'
 
 def manhatten_distance(sensor, beacon):
     return abs(sensor[0]-beacon[0]) + abs(sensor[1]-beacon[1])
@@ -48,11 +52,36 @@ def count_objects_in_column(grid, col, beacons):
             counter -= 1
     return counter
 
+def count(grid, col):
+    intervals = grid[col]
+    counter = 0
+    for interval in intervals:
+        counter += interval[1] - interval[0]
+
+
+def merge_intervals(intervals):
+    sorted_intervals = list(map(list, sorted(list(intervals))))
+    new_intervals = [sorted_intervals[0]]
+    for i in sorted_intervals[1:]:
+        if new_intervals[-1][0] <= i[0] <= new_intervals[-1][1]+1:
+            new_intervals[-1][1] = max(new_intervals[-1][1], i[1])
+        else:
+            new_intervals.append(i)
+    return new_intervals
+
+
+def ranges(grid):
+    for obj in grid.keys():
+        pass
+
+
 def plot(grid):
     import matplotlib.pyplot as plt
 
-    for key in grid:
-        plt.plot(key[0], key[1], 'x')
+    for col in grid:
+        for interval in grid[col]:
+            for row in range(*interval):
+                plt.plot(row, col, 'x')
 
     plt.show()
 
@@ -64,12 +93,20 @@ def main():
     for sensor in tqdm(sensors.keys()):
         distance = manhatten_distance(sensor, sensors[sensor])
         fill_grid(grid, sensor, distance)
-
-    print(count_objects_in_column(grid, 2000000, beacons)+1)
-    #plot(grid)
+    #intervals = merge_intervals(grid[2000000])[0]
+    #count = intervals[1] - intervals[0]
+    #print(count)
 
     # part 2
-    plot(grid)
+    x = 0
+    y = 0
+    for i in tqdm(range(4000000)):
+        if i in grid:
+            if len(intervals:=merge_intervals(grid[i])) > 1:
+                y = i
+                x =intervals[1][0] - 1
+    print(x,y)
+    print(x*4000000+y)
 
 if __name__ == "__main__":
     main()
