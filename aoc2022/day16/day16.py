@@ -47,7 +47,7 @@ def bfs(graph, start, rates):
     return distances
 
 def paths_in_time(distances, time, rates):
-    # this is DFS???
+    # this is DFS??? I guess
     pressures = []
     paths = []
     q = []
@@ -73,8 +73,9 @@ def paths_in_time(distances, time, rates):
             pressure.append(pres + minutes[-1] * rates[edge])
             q.append(path + [edge])
         if end:
+            paths.append(path)
             pressures.append(pres)
-    return pressures
+    return pressures, paths
 
 
 def main():
@@ -98,17 +99,25 @@ def main():
         for to_node in distance_nodes:
             if to_node != from_node:
                 distances[from_node][to_node] = distance_nodes[to_node]
-    print(distances)
     # we have the distances from each node to each node now. nice. what next??
     # calculate all paths that can be reached in time
     # works on test but is slow in input -> remove valves thats have zero flow!
-    pressure = paths_in_time(distances, 30, graph.rates)
-    print(max(pressure))
+    pressures, paths = paths_in_time(distances, 30, graph.rates)
+    print(max(pressures))
+    print(len(paths))
 
     # part 2
+    # comparing each path would take O(N**2) -> slow
+    # let's do this: sort paths by pressure. Since I will open the best suitable valves,
+    # the elephant will have a lower pressure number. 
+    my_pressures, my_paths = paths_in_time(distances, 26, graph.rates)
+    combined = []
+    for idx, path in tqdm(enumerate(my_paths)):
+        for el_idx, el_path in enumerate(my_paths):
+            if set(path).intersection(set(el_path)) == {'AA'}:
+                combined.append(my_pressures[idx]+my_pressures[el_idx])
 
-
-
+    print(max(combined))
 
 if __name__ == "__main__":
     main()
